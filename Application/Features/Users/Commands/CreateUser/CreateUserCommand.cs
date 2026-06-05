@@ -1,11 +1,11 @@
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Users.Commands.CreateUser;
 
 /// <summary>
 /// Команда для создания нового пользователя
 /// </summary>
-public class CreateUserCommand : IRequest<Guid>
+public class CreateUserCommand : ICommand<Guid>
 {
     /// <summary>
     /// Имя пользователя

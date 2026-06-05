@@ -35,7 +35,7 @@ public static class DependencyInjection
 
         // DbContext
         services.AddDbContext<IdentityDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default_Connection")));
+            options.UseNpgsql(configuration["Default_Connection"]));
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

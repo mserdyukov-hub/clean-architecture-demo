@@ -26,6 +26,8 @@ public static class DependencyInjection
         // ValidationBehavior (пайплайн валидации)
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+        // TransactionBehavior (пайплайн транзакции)
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         return services;
     }
 }

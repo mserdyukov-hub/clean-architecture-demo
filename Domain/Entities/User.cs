@@ -20,7 +20,7 @@ public class User : IAggregateRoot
         CreatedAt = DateTime.UtcNow;
         IsActive = true;
     }
-    
+
     public Guid Id { get; }
     public string UserName { get; private set; }
     public Email Email { get; private set; }
@@ -34,7 +34,7 @@ public class User : IAggregateRoot
     public DateTime? LockoutEnd { get; set; }
 
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
-    
+
 
     public static User Create(string username, Email email, PasswordHash passwordHash)
     {
@@ -58,16 +58,17 @@ public class User : IAggregateRoot
     {
         if (role == null)
             throw new DomainException("Role cannot be null");
-        
-        if (_userRoles.Any(ur => ur.RoleId == role.RoleId))
+
+        if (_userRoles.All(ur => ur.RoleId != role.RoleId))
             throw new DomainException($"User does not have role '{role.Role.Name}'");
+
         _userRoles.Remove(role);
     }
 
     public bool HasRole(string userRole)
         => _userRoles.Any(ur => ur.Role.Name == userRole);
 
-    
+
     public void RecordSuccessfulLogin()
     {
         LastLoginAt = DateTime.UtcNow;
@@ -80,14 +81,14 @@ public class User : IAggregateRoot
         FailedLoginAttempts++;
 
         if (FailedLoginAttempts >= MaxFailedAttempts)
-            LockoutEnd = DateTime.Now.AddMinutes(LockoutDurationMinutes); 
+            LockoutEnd = DateTime.Now.AddMinutes(LockoutDurationMinutes);
     }
 
     public void EnsureLogin()
     {
         if (!IsActive)
             throw new DomainException("User is not active");
-        
+
         if (LockoutEnd.HasValue && LockoutEnd > DateTime.Now)
             throw new DomainException("Lockout end is earlier than the current time");
     }
@@ -101,7 +102,7 @@ public class User : IAggregateRoot
     {
         IsActive = false;
     }
-    
+
     public void UpdateProfile(string username, string? firstName, string? lastName)
     {
         if(string.IsNullOrEmpty(username))

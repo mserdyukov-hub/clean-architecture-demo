@@ -16,30 +16,30 @@ namespace Application.Features.Users.Commands.CreateUser;
 public class CreateUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IPasswordHasher passwordHasher) 
+    IPasswordHasher passwordHasher)
     : IRequestHandler<CreateUserCommand, Guid>
 {
     public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         // проверка уникальности Email
         var email = Email.Create(request.Email);
-        if (!await userRepository.ExistsByEmailAsync(email, cancellationToken))
+        if (await userRepository.ExistsByEmailAsync(email, cancellationToken))
             throw new ConflictException("User", "email", request.Email);
 
         // Проверка уникальности Username
-        if (!await userRepository.ExistsByUsernameAsync(request.UserName, cancellationToken))
+        if (await userRepository.ExistsByUsernameAsync(request.UserName, cancellationToken))
             throw new ConflictException("User", "username", request.UserName);
-        
+
         // 3. Хеширование пароля
         var passwordHash = passwordHasher.Hash(request.Password);
 
         // 4. Создание пользователя
         var user = User.Create(request.UserName, email, passwordHash);
-        
+
         // 5. Сохранение пользователя
         userRepository.Add(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return user.Id;
     }
 }

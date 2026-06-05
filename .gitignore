@@ -1,0 +1,36 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# Environment
+*.env
+appsettings.Development.json
+launchsettings.json
+
+# Secrets
+*.Secret.json
+secrets.*
+*.pfx
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Test
+TestResults/
+*.coverage

@@ -1,9 +1,9 @@
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
+using Application.Common.Messaging;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
-using MediatR;
 
 namespace Application.Features.Users.Commands.CreateUser;
 
@@ -17,7 +17,7 @@ public class CreateUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher)
-    : IRequestHandler<CreateUserCommand, Guid>
+    : ICommandHandler<CreateUserCommand, Guid>
 {
     public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {

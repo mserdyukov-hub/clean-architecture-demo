@@ -36,7 +36,7 @@ public static class DependencyInjection
 
         // DbContext
         services.AddDbContext<IdentityDbContext>(options =>
-            options.UseNpgsql(configuration["Default_Connection"]));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -101,6 +101,7 @@ public static class DependencyInjection
         services.Configure<RedisOptions>(
             configuration.GetSection(
                 RedisOptions.SectionName));
+
         var redisOptions =
             configuration
                 .GetSection(RedisOptions.SectionName)

@@ -11,6 +11,9 @@ public class User : IAggregateRoot
     private const int MaxFailedAttempts = 5;
     private const int LockoutDurationMinutes = 15;
 
+    private User()
+    {
+    }
     private User(Guid id, string username, Email email, PasswordHash passwordHash)
     {
         Id = id;
@@ -89,7 +92,7 @@ public class User : IAggregateRoot
         if (!IsActive)
             throw new DomainException("User is not active");
 
-        if (LockoutEnd.HasValue && LockoutEnd > DateTime.Now)
+        if (LockoutEnd.HasValue && LockoutEnd > DateTime.UtcNow)
             throw new DomainException("Lockout end is earlier than the current time");
     }
 

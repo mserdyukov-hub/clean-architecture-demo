@@ -12,13 +12,13 @@ public class UserRole
     {
         UserId = userId;
         RoleId = roleId;
-        AssignedAt = DateTime.Now;
+        AssignedAt = DateTime.UtcNow;
     }
 
     public Guid UserId { get; }
     public Guid RoleId { get; }
     public DateTime AssignedAt { get; }
-    
+
     public User User { get; private set; }
     public Role Role { get; private set; }
 
@@ -28,7 +28,7 @@ public class UserRole
             throw new DomainException("User is null");
         if (role == null)
             throw new DomainException("Role is null");
-        
+
         return new UserRole(user.Id, role.Id);
     }
 }

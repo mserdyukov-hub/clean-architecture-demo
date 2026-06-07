@@ -1,5 +1,6 @@
 using Application;
 using Infrastructure;
+using Infrastructure.Extensions;
 using WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
+
+await app.SeedDatabaseAsync();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();

@@ -13,8 +13,9 @@ public class Role : IAggregateRoot
     {
     }
 
-    public Role(string name, string? description = null, bool isSystem = false)
+    public Role(Guid id, string name, string? description = null, bool isSystem = false)
     {
+        Id = id;
         Name = name;
         Description = description;
         CreatedAt = DateTime.UtcNow;
@@ -30,14 +31,14 @@ public class Role : IAggregateRoot
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
     public IReadOnlyCollection<RolePermission> RolePermissions => _rolePermissions.AsReadOnly();
 
-    public static Role Create(string name, string? description) => new(name, description);
+    public static Role Create(string name, string? description) => new(Guid.NewGuid(), name, description);
 
-    public static Role CreateSystemRole(string name, string description)
+    public static Role CreateSystemRole(Guid id,string name, string description)
     {
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("System role description cannot be empty");
 
-        return new Role(name, description, true);
+        return new Role(id, name, description, true);
     }
 
     public void AddPermission(Permission permission)
@@ -74,7 +75,7 @@ public class Role : IAggregateRoot
 
         if (IsSystem)
             throw new DomainException("System role cannot be updated");
-        
+
         if (name.Length is < 2 or > 50)
             throw new DomainException("Name must be between 2 and 50 characters");
 

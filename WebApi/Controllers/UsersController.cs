@@ -34,6 +34,7 @@ public class UsersController(IMediator mediator) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id:guid}")]
+    [Authorize]
     [ProducesResponseType(typeof(UserDetailDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserDataById(Guid id, CancellationToken cancellationToken)
         => Ok(await mediator.Send(new GetUserByIdQuery(id), cancellationToken));

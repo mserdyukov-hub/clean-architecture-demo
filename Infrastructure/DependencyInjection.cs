@@ -2,6 +2,7 @@ using System.Text;
 using Application.Common.Interfaces;
 using Domain.Repositories;
 using Infrastructure.Authentications;
+using Infrastructure.Cache;
 using Infrastructure.Data;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
@@ -96,6 +97,24 @@ public static class DependencyInjection
                 policy.RequireClaim("permission", "users.update"))
             .AddPolicy("RequireUserDelete", policy =>
                 policy.RequireClaim("permission", "users.delete"));
+
+        services.Configure<RedisOptions>(
+            configuration.GetSection(
+                RedisOptions.SectionName));
+        var redisOptions =
+            configuration
+                .GetSection(RedisOptions.SectionName)
+                .Get<RedisOptions>()
+            ?? throw new InvalidOperationException(
+                "Redis configuration not found.");
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration =
+                redisOptions.ConnectionString;
+        });
+
+        services.AddScoped<ICacheService, RedisCacheService>();
 
         return services;
     }

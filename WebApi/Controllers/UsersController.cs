@@ -56,6 +56,12 @@ public class UsersController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Удаление пользователя
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = "RequireUserDelete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -9,7 +9,7 @@ namespace Infrastructure.Data.Seed;
 public static class DataSeeder
 {
     public static async Task SeedAsync(
-        IdentityDbContext context,
+        CaDemoDbContext context,
         IPasswordHasher passwordHasher,
         CancellationToken cancellationToken = default)
     {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class PermissionRepository(IdentityDbContext context) : IPermissionRepository
+public class PermissionRepository(CaDemoDbContext context) : IPermissionRepository
 {
     public async Task<List<Permission>> GetAllAsync(CancellationToken cancellationToken = default)
         => await context.Permissions.ToListAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using Application.Common.Caching;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Domain.Repositories;
@@ -5,7 +6,10 @@ using MediatR;
 
 namespace Application.Features.Users.Commands.DeleteUser;
 
-public class DeleteUserCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
+public class DeleteUserCommandHandler(
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService)
     : IRequestHandler<DeleteUserCommand>
 {
     public async Task Handle(DeleteUserCommand request, CancellationToken cancellationToken)
@@ -16,5 +20,9 @@ public class DeleteUserCommandHandler(IUserRepository userRepository, IUnitOfWor
 
         userRepository.Remove(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // todo В дальнейшем уйдет из Handler
+        await cacheService.RemoveAsync(CacheKeys.Users(), cancellationToken);
+        await cacheService.RemoveAsync(CacheKeys.User(request.Id), cancellationToken);
     }
 }

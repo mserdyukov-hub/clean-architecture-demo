@@ -1,3 +1,4 @@
+using Application.Common.Caching;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Common.Messaging;
@@ -16,7 +17,8 @@ namespace Application.Features.Users.Commands.CreateUser;
 public class CreateUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IPasswordHasher passwordHasher)
+    IPasswordHasher passwordHasher,
+    ICacheService cacheService)
     : ICommandHandler<CreateUserCommand, Guid>
 {
     public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -39,6 +41,10 @@ public class CreateUserCommandHandler(
         // 5. Сохранение пользователя
         userRepository.Add(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // todo В дальнейшем уйдет из Handler
+        await cacheService.RemoveAsync(CacheKeys.Users(), cancellationToken);
+        await cacheService.RemoveAsync(CacheKeys.User(user.Id), cancellationToken);
 
         return user.Id;
     }

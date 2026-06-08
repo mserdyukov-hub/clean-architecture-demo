@@ -22,7 +22,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.FirstName).HasColumnName("first_name").HasMaxLength(50);
         builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(50);
         builder.Property(u => u.Email).HasColumnName("email").HasMaxLength(50)
-            .HasConversion(email=>email.Value, value => new Email(value)).IsRequired();
+            .HasConversion(email => email.Value, value => new Email(value)).IsRequired();
         builder.Property(u => u.PasswordHash).HasColumnName("password_hash").HasMaxLength(255)
             .HasConversion(hash => hash.Value, value => new PasswordHash(value)).IsRequired();
         builder.Property(u => u.CreatedAt).HasColumnName("created_at").IsRequired();

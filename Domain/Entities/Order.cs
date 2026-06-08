@@ -3,7 +3,7 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Domain.ValueObjects;
 
-namespace Infrastructure.Configurations;
+namespace Domain.Entities;
 
 public sealed class Order : Entity<Guid>, IAggregateRoot
 {
@@ -43,11 +43,15 @@ public sealed class Order : Entity<Guid>, IAggregateRoot
         Money unitPrice,
         int quantity)
     {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Order is in another state.");
+
         if (quantity <= 0)
             throw new DomainException("Quantity must be greater than zero.");
 
         _items.Add(
             OrderItem.Create(
+                Id,
                 productId,
                 productName,
                 unitPrice,

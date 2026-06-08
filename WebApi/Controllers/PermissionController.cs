@@ -24,7 +24,7 @@ public class PermissionController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(List<PermissionListDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<PermissionListDto>>> GetPermissions(CancellationToken cancellationToken)
         => Ok(await mediator.Send(new GetPermissionsQuery(), cancellationToken));
-    
+
     /// <summary>
     /// Получение разрешения по Id
     /// </summary>
@@ -32,6 +32,7 @@ public class PermissionController(IMediator mediator) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = "RequireAdminRole")]
     [ProducesResponseType(typeof(PermissionListDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<PermissionListDto>> GetPermission(Guid id, CancellationToken cancellationToken)
         => Ok(await mediator.Send(new GetPermissionByIdQuery(id), cancellationToken));

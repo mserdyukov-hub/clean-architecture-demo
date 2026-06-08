@@ -32,6 +32,7 @@ public class RolesController(IMediator mediator) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = "RequireAdminRole")]
     [ProducesResponseType(typeof(RoleDetailDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<RoleDetailDto>> GetRole(Guid id, CancellationToken cancellationToken)
         => Ok(await mediator.Send(new GetRoleByIdQuery(id), cancellationToken));

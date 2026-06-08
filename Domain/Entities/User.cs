@@ -4,8 +4,10 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-// Корень агрегата - сущность, через которую происходит весь доступ к связанным данным
-public class User : IAggregateRoot
+/// <summary>
+/// User - Корень агрегата - сущность, через которую происходит весь доступ к связанным данным
+/// </summary>
+public sealed class User : Entity<Guid>, IAggregateRoot
 {
     private readonly List<UserRole> _userRoles = [];
     private const int MaxFailedAttempts = 5;
@@ -23,8 +25,6 @@ public class User : IAggregateRoot
         CreatedAt = DateTime.UtcNow;
         IsActive = true;
     }
-
-    public Guid Id { get; }
     public string UserName { get; private set; }
     public Email Email { get; private set; }
     public string? FirstName { get; set; }

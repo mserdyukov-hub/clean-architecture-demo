@@ -16,14 +16,14 @@ public class UserRepository(IdentityDbContext context) : IUserRepository
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
         => await context.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+            .SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
 
     public Task<List<User>> GetAllAsync(CancellationToken cancellationToken = default)
         => context.Users.ToListAsync(cancellationToken);

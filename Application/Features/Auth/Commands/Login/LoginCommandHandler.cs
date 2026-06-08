@@ -33,6 +33,10 @@ public class LoginCommandHandler(
         }
 
         var token = jwtTokenGenerator.GenerateToken(user);
+
+        user.RecordSuccessfulLogin();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         return new AuthResponseDto
         {
             Token = token

@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Infrastructure.Migrations
 {
-    [DbContext(typeof(IdentityDbContext))]
+    [DbContext(typeof(CaDemoDbContext))]
     [Migration("20260607195616_InitialCreate")]
     partial class InitialCreate
     {

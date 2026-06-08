@@ -19,7 +19,7 @@ public static class ApplicationBuilderExtensions
 
         var context =
             scope.ServiceProvider
-                .GetRequiredService<IdentityDbContext>();
+                .GetRequiredService<CaDemoDbContext>();
 
         var passwordHasher =
             scope.ServiceProvider

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class RoleRepository(IdentityDbContext context) : IRoleRepository
+public class RoleRepository(CaDemoDbContext context) : IRoleRepository
 {
     public async Task<List<Role>> GetAllAsync(CancellationToken cancellationToken = default)
         => await context.Roles.ToListAsync(cancellationToken);

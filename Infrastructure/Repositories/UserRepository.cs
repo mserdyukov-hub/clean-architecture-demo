@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class UserRepository(IdentityDbContext context) : IUserRepository
+public class UserRepository(CaDemoDbContext context) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);

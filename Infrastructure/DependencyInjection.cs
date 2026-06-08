@@ -35,8 +35,11 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
         // DbContext
-        services.AddDbContext<IdentityDbContext>(options =>
+        services.AddDbContext<CaDemoDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<ICaDemoDbContext>(
+            provider => provider.GetRequiredService<CaDemoDbContext>());
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

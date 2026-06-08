@@ -2,7 +2,7 @@ using Domain.Exceptions;
 
 namespace Domain.Entities;
 
-public class RolePermission
+public sealed class RolePermission
 {
     private RolePermission() { } // Для EF Core
 

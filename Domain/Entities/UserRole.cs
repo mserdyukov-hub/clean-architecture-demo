@@ -2,7 +2,7 @@ using Domain.Exceptions;
 
 namespace Domain.Entities;
 
-public class UserRole
+public sealed class UserRole
 {
     private UserRole()
     {

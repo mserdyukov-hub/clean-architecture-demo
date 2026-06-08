@@ -4,7 +4,7 @@ using Domain.Exceptions;
 namespace Domain.Entities;
 
 // Корень агрегата - сущность, через которую происходит весь доступ к связанным данным
-public class Role : IAggregateRoot
+public sealed class Role : Entity<Guid>, IAggregateRoot
 {
     private readonly List<UserRole> _userRoles = [];
     private readonly List<RolePermission> _rolePermissions = [];
@@ -22,7 +22,6 @@ public class Role : IAggregateRoot
         IsSystem = isSystem;
     }
 
-    public Guid Id { get; private set; }
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public DateTime CreatedAt { get; }

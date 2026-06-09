@@ -19,6 +19,7 @@ public sealed class OrderItem : Entity<Guid>
         int quantity)
     {
         Id = id;
+        OrderId = orderId;
         ProductId = productId;
         ProductName = productName;
         UnitPrice = unitPrice;

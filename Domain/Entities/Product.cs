@@ -40,7 +40,7 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
     public Guid CategoryId { get; private set; }
 
 
-    public static Product Create(Guid id, string name, string description, Money price, int stockQuantity,
+    public static Product Create(string name, string description, Money price, int stockQuantity,
         Guid categoryId)
     {
         ValidateDetails(name, description, categoryId);
@@ -61,6 +61,8 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
         Name = name.Trim();
         Description = description.Trim();
         CategoryId = categoryId;
+        Price = price;
+        StockQuantity = stockQuantity;
     }
 
     public void UpdatePrice(Money price)

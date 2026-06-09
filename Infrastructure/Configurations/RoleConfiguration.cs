@@ -8,10 +8,10 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable("roles","public");
-        
+        builder.ToTable("roles","identity");
+
         builder.HasKey(r => r.Id);
-        
+
         builder.Property(r => r.Id)
             .ValueGeneratedNever();
 

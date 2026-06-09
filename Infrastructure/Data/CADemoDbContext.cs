@@ -1,10 +1,13 @@
 using Application.Common.Interfaces;
+using Domain.Common;
 using Domain.Entities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public class CaDemoDbContext(DbContextOptions options) : DbContext(options), ICaDemoDbContext
+public class CaDemoDbContext(DbContextOptions<CaDemoDbContext> options, IMediator mediator)
+    : DbContext(options), ICaDemoDbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
@@ -26,7 +29,43 @@ public class CaDemoDbContext(DbContextOptions options) : DbContext(options), ICa
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Автоматически устанавливаем даты для новых сущностей, если потребуется
-        return await base.SaveChangesAsync(cancellationToken);
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        await PublishDomainEventsAsync(cancellationToken);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Находит все доменные события у агрегатов и публикует их через MediatR
+    /// </summary>
+    private async Task PublishDomainEventsAsync(
+        CancellationToken cancellationToken)
+    {
+        // Получаем все агрегаты, у которых есть хотя бы одно доменное событие
+        var aggregates = ChangeTracker
+            .Entries<AggregateRoot<Guid>>()
+            .Select(x => x.Entity)
+            .Where(x => x.DomainEvents.Count != 0)
+            .ToList();
+
+        // Собираем все события из всех агрегатов в один список
+        var domainEvents = aggregates
+            .SelectMany(x => x.DomainEvents)
+            .ToList();
+
+        // Публикуем каждое событие через MediatR
+        foreach (var domainEvent in domainEvents)
+        {
+            await mediator.Publish(
+                domainEvent,
+                cancellationToken);
+        }
+
+        // Очищаем события внутри агрегатов
+        foreach (var aggregate in aggregates)
+        {
+            aggregate.ClearDomainEvents();
+        }
     }
 }

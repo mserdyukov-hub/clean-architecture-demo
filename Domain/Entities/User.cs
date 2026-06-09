@@ -1,3 +1,4 @@
+using Domain.Aggregates.Identity;
 using Domain.Common;
 using Domain.Exceptions;
 using Domain.ValueObjects;
@@ -7,7 +8,7 @@ namespace Domain.Entities;
 /// <summary>
 /// User - Корень агрегата - сущность, через которую происходит весь доступ к связанным данным
 /// </summary>
-public sealed class User : Entity<Guid>, IAggregateRoot
+public sealed class User : AggregateRoot<Guid>
 {
     private readonly List<UserRole> _userRoles = [];
     private const int MaxFailedAttempts = 5;
@@ -45,7 +46,17 @@ public sealed class User : Entity<Guid>, IAggregateRoot
             throw new DomainException("Username cannot be empty");
         if (username.Length < 3)
             throw new DomainException("Username must be at least 3 characters");
-        return new User(Guid.NewGuid(), username, email, passwordHash);
+
+        var user = new User(Guid.NewGuid(), username, email, passwordHash);
+
+        // Фиксируем факт создания пользователя.
+        // Событие пока только сохраняется внутри агрегата.
+        user.AddDomainEvent(
+            new UserCreatedDomainEvent(
+                user.Id,
+                user.Email));
+
+        return user;
     }
 
     public void AssignRole(UserRole role)

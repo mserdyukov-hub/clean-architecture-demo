@@ -16,7 +16,9 @@ public sealed class UserCreatedDomainEventHandler : INotificationHandler<UserCre
     /// <param name="cancellationToken"></param>
     public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
-        Console.WriteLine("UserCreatedDomainEventHandler.Handle");
+        Console.WriteLine(
+            $"USER CREATED: {notification.Email}");
+
         await Task.CompletedTask;
     }
 }

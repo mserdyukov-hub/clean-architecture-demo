@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CaDemoDbContext))]
-    partial class IdentityDbContextModelSnapshot : ModelSnapshot
+    partial class CaDemoDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -21,6 +21,91 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories", "shop");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Orders", "shop");
+                });
+
+            modelBuilder.Entity("Domain.Entities.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("product_name");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItems", "shop", t =>
+                        {
+                            t.Property("order_id")
+                                .HasColumnName("order_id1");
+                        });
+                });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
                 {
@@ -53,7 +138,48 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("permissions", "public");
+                    b.ToTable("permissions", "identity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("stock_quantity");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Products", "shop");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -83,7 +209,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("roles", "public");
+                    b.ToTable("roles", "identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.RolePermission", b =>
@@ -103,7 +229,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("rolepermissions", "public");
+                    b.ToTable("rolepermissions", "identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -166,7 +292,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
 
-                    b.ToTable("users", "public");
+                    b.ToTable("users", "identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
@@ -186,7 +312,79 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("userroles", "public");
+                    b.ToTable("userroles", "identity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.OrderItem", b =>
+                {
+                    b.HasOne("Domain.Entities.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Domain.ValueObjects.Money", "UnitPrice", b1 =>
+                        {
+                            b1.Property<Guid>("OrderItemId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("unit_price");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("currency");
+
+                            b1.HasKey("OrderItemId");
+
+                            b1.ToTable("OrderItems", "shop");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderItemId");
+                        });
+
+                    b.Navigation("UnitPrice")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Product", b =>
+                {
+                    b.HasOne("Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Domain.ValueObjects.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("Price");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products", "shop");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("Price")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.RolePermission", b =>
@@ -225,6 +423,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>

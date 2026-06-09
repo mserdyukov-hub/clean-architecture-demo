@@ -8,7 +8,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.ToTable("permissions", "public");
+        builder.ToTable("permissions", "identity");
 
         builder.HasKey(p => p.Id);
 
@@ -24,7 +24,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.Property(p => p.Code)
             .IsRequired()
             .HasMaxLength(100);
-        
+
         // Group - группировка разрешений
         builder.Property(p => p.Group)
             .IsRequired()
@@ -33,7 +33,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         // CreatedAt
         builder.Property(p => p.CreatedAt)
             .IsRequired();
-        
+
         builder.HasMany(p => p.RolePermissions)
             .WithOne(pr => pr.Permission)
             .HasForeignKey(p => p.PermissionId)

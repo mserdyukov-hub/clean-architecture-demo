@@ -1,5 +1,5 @@
-using Application.Features.Roles.Queries.GetRoleById;
-using Application.Features.Roles.Queries.GetRoles;
+using Application.Identity.Roles.Queries.GetRoleById;
+using Application.Identity.Roles.Queries.GetRoles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

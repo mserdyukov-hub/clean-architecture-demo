@@ -1,4 +1,4 @@
-using Application.Features.Shop.Categories.Queries.GetCategoryById;
+using Application.Shop.Categories.Queries.GetCategoryById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

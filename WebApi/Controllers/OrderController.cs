@@ -1,4 +1,4 @@
-using Application.Features.Shop.Orders.Queries;
+using Application.Shop.Orders.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

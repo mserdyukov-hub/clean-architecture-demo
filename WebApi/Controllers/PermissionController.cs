@@ -1,5 +1,5 @@
-using Application.Features.Permissions.Queries.GetPermissionById;
-using Application.Features.Permissions.Queries.GetPermissions;
+using Application.Identity.Permissions.Queries.GetPermissionById;
+using Application.Identity.Permissions.Queries.GetPermissions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

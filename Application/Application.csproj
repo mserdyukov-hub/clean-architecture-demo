@@ -17,13 +17,4 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Features\Auth\Queries\" />
-      <Folder Include="Features\Permissions\Commands\" />
-      <Folder Include="Features\Roles\Commands\" />
-      <Folder Include="Features\Shop\Categories\Commands\" />
-      <Folder Include="Features\Shop\Orders\Command\" />
-      <Folder Include="Features\Shop\Products\Commands\" />
-    </ItemGroup>
-
 </Project>

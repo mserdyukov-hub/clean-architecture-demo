@@ -1,7 +1,7 @@
-using Application.Features.Users.Commands.DeleteUser;
-using Application.Features.Users.Commands.UpdateUser;
-using Application.Features.Users.Queries.GetUserById;
-using Application.Features.Users.Queries.GetUsers;
+using Application.Identity.Users.Commands.DeleteUser;
+using Application.Identity.Users.Commands.UpdateUser;
+using Application.Identity.Users.Queries.GetUserById;
+using Application.Identity.Users.Queries.GetUsers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

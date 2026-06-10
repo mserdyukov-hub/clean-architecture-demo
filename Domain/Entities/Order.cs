@@ -5,7 +5,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public sealed class Order : Entity<Guid>, IAggregateRoot
+public sealed class Order : AggregateRoot<Guid>
 {
 
     private readonly List<OrderItem> _items = [];

@@ -7,7 +7,7 @@ namespace Domain.Entities;
 /// <summary>
 /// Продукт - Корень агрегата
 /// </summary>
-public sealed class Product : Entity<Guid>, IAggregateRoot
+public sealed class Product : AggregateRoot<Guid>
 {
     private Product()
     {

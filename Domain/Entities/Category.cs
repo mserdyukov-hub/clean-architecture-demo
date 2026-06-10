@@ -6,7 +6,7 @@ namespace Domain.Entities;
 /// <summary>
 /// Категория - Корень агрегата
 /// </summary>
-public sealed class Category : Entity<Guid>, IAggregateRoot
+public sealed class Category : AggregateRoot<Guid>
 {
     private Category()
     {

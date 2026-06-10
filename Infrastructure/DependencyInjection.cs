@@ -1,9 +1,11 @@
 using System.Text;
 using Application.Common.Interfaces;
+using Application.Common.Messaging;
 using Domain.Repositories;
 using Infrastructure.Authentications;
 using Infrastructure.Cache;
 using Infrastructure.Data;
+using Infrastructure.Messaging.Kafka;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Security;
@@ -119,6 +121,15 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ICacheService, RedisCacheService>();
+
+
+        // Kafka
+        services.Configure<KafkaOptions>(
+            configuration.GetSection(
+                KafkaOptions.SectionName));
+
+        services.AddSingleton<IKafkaProducer,
+            KafkaProducer>();
 
         return services;
     }

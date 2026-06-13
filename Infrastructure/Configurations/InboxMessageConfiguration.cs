@@ -11,21 +11,25 @@ public class InboxMessageConfiguration : IEntityTypeConfiguration<InboxMessage>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Topic)
+            .HasColumnName("topic")
             .IsRequired()
             .HasMaxLength(200);
 
         builder.Property(x => x.Partition)
+            .HasColumnName("partition")
             .IsRequired();
 
         builder.Property(x => x.Offset)
+            .HasColumnName("offset")
             .IsRequired();
 
         builder.Property(x => x.ReceivedOnUtc)
+            .HasColumnName("received_on_utc")
             .IsRequired();
 
-        builder.Property(x => x.Error);
+        builder.Property(x => x.Error).HasColumnName("error");
 
-        builder.Property(x => x.ProcessedOnUtc);
+        builder.Property(x => x.ProcessedOnUtc).HasColumnName("processed_on_utc");
 
         builder.HasIndex(x => new
             {

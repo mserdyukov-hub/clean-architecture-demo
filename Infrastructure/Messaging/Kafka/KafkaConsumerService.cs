@@ -110,15 +110,6 @@ public class KafkaConsumerService(
     private static void ProcessMessage(
         ConsumeResult<string, string> result)
     {
-        //
-        // Специально роняем обработку
-        //
-        if (result.Message.Value == "fail")
-        {
-            throw new Exception(
-                "Business logic failed");
-        }
-
         Thread.Sleep(1000);
     }
 }

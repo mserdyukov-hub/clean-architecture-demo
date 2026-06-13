@@ -10,7 +10,7 @@ namespace Infrastructure.BackgroundServices;
 
 public sealed class OutboxProcessor(
     IServiceScopeFactory scopeFactory,
-    IKafkaProducer producer,
+    IKafkaProducer kafkaProducer,
     ILogger<OutboxProcessor> logger)
     : BackgroundService
 {
@@ -22,8 +22,6 @@ public sealed class OutboxProcessor(
         {
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-
                 using var scope = scopeFactory.CreateScope();
 
                 var dbContext = scope.ServiceProvider.GetRequiredService<CaDemoDbContext>();
@@ -34,36 +32,38 @@ public sealed class OutboxProcessor(
                     .Take(20)
                     .ToListAsync(stoppingToken);
 
-                if (messages.Count == 0)
-                    continue;
-
-                foreach (var message in messages)
+                if (messages.Count != 0)
                 {
-                    try
+                    foreach (var message in messages)
                     {
-                        await producer.ProduceAsync(
-                            message.Topic,
-                            message.Content,
-                            stoppingToken);
+                        try
+                        {
+                            await kafkaProducer.ProduceAsync(
+                                message.Topic,
+                                message.Content,
+                                stoppingToken);
 
-                        logger.LogInformation(
-                            "Processing outbox message {MessageId}",
-                            message.Id);
+                            logger.LogInformation(
+                                "Processing outbox message {MessageId}",
+                                message.Id);
 
-                        message.MarkAsProcessed();
+                            message.MarkAsProcessed();
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(
+                                ex,
+                                "Failed processing outbox message {MessageId}",
+                                message.Id);
+
+                            message.MarkAsError(ex.Message);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(
-                            ex,
-                            "Failed processing outbox message {MessageId}",
-                            message.Id);
 
-                        message.MarkAsError(ex.Message);
-                    }
+                    await dbContext.SaveChangesAsync(stoppingToken);
                 }
 
-                await dbContext.SaveChangesAsync(stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
             catch (Exception ex)
             {

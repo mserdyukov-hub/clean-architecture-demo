@@ -14,6 +14,7 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
 
         builder.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever().IsRequired();
         builder.Property(x=>x.OccurredOnUtc).HasColumnName("occurred_on_utc").IsRequired();
+        builder.Property(x => x.Topic).HasColumnName("topic").HasMaxLength(100).IsRequired();
         builder.Property(x=>x.Type).HasColumnName("type").HasMaxLength(500).IsRequired();
         builder.Property(x=>x.Content).HasColumnName("content").IsRequired();
         builder.Property(x=>x.ProcessedOnUtc).HasColumnName("processed_on_utc");

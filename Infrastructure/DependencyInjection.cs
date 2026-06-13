@@ -2,6 +2,7 @@ using System.Text;
 using Application.Common.Interfaces;
 using Domain.Repositories;
 using Infrastructure.Authentications;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Cache;
 using Infrastructure.Data;
 using Infrastructure.Persistence;
@@ -140,6 +141,8 @@ public static class DependencyInjection
         // Interceptor для реализации Outbox Pattern
         // Перед SaveChanges извлекает Domain Events из агрегатов и сохраняет их в таблицу outbox_messages
         services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
+
+        services.AddHostedService<OutboxProcessor>();
 
         return services;
     }

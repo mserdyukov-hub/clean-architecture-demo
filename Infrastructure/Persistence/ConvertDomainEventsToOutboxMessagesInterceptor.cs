@@ -42,7 +42,7 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
             .SelectMany(aggregate =>
                 {
                     // Копируем события во временный список.
-                    var events = aggregate.DomainEvents.ToList();
+                    var events = aggregate.DomainEvents.ToList(); // todo почему нет событий?
 
                     // Очищаем агрегат, чтобы события не были обработаны повторно
                     aggregate.ClearDomainEvents();
@@ -57,7 +57,7 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
                 occurredOnUtc: DateTime.UtcNow,
 
                 // Сохраняем полный тип события,чтобы позднее можно было восстановить объект
-                type: domainEvents.GetType().FullName!,
+                type: domainEvent.GetType().FullName!,
 
                 // Сериализуем событие в JSON
                 content: JsonSerializer.Serialize(domainEvent)

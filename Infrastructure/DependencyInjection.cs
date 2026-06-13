@@ -156,7 +156,6 @@ public static class DependencyInjection
             KafkaProducer>();
 
         services.AddHostedService<KafkaConsumerService>();
-        // services.AddHostedService<KafkaConsumerBService>();
 
         return services;
     }

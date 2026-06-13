@@ -1,3 +1,4 @@
+using Application.Common.Messaging;
 using Infrastructure.Data;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.BackgroundServices;
 
-public sealed class OutboxProcessor(IServiceScopeFactory scopeFactory, ILogger<OutboxProcessor> logger)
+public sealed class OutboxProcessor(
+    IServiceScopeFactory scopeFactory,
+    IKafkaProducer producer,
+    ILogger<OutboxProcessor> logger)
     : BackgroundService
 {
     private const int MaxRetryCount = 5;
@@ -37,10 +41,10 @@ public sealed class OutboxProcessor(IServiceScopeFactory scopeFactory, ILogger<O
                 {
                     try
                     {
-                        // await kafkaProducer.ProduceAsync(
-                        //     topic,
-                        //     message.Content,
-                        //     stoppingToken);
+                        await producer.ProduceAsync(
+                            message.Topic,
+                            message.Content,
+                            stoppingToken);
 
                         logger.LogInformation(
                             "Processing outbox message {MessageId}",

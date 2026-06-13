@@ -14,6 +14,11 @@ public sealed class OutboxMessage : Entity<Guid>
     public DateTime OccurredOnUtc { get; private set; }
 
     /// <summary>
+    /// Topic для kafka
+    /// </summary>
+    public string Topic { get; private set; } = null!;
+
+    /// <summary>
     /// Тип ивента
     /// </summary>
     public string Type { get; private set; } = null!;
@@ -38,8 +43,8 @@ public sealed class OutboxMessage : Entity<Guid>
     /// </summary>
     public int RetryCount { get; private set; }
 
-    public static OutboxMessage Create(DateTime occurredOnUtc, string type, string content)
-        => new() { Id = Guid.NewGuid(), OccurredOnUtc = occurredOnUtc, Type = type, Content = content };
+    public static OutboxMessage Create(DateTime occurredOnUtc, string topic, string type, string content)
+        => new() { Id = Guid.NewGuid(), OccurredOnUtc = occurredOnUtc, Topic = topic, Type = type, Content = content };
 
     public void MarkAsProcessed()
     {

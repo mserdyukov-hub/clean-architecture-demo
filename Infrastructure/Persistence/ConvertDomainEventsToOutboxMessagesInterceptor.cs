@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Domain.Aggregates.Identity;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -55,6 +56,7 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
         var outboxMessages = domainEvents
             .Select(domainEvent => OutboxMessage.Create(
                 occurredOnUtc: DateTime.UtcNow,
+                ResolveTopic(domainEvent),
 
                 // Сохраняем полный тип события,чтобы позднее можно было восстановить объект
                 type: domainEvent.GetType().FullName!,
@@ -67,5 +69,21 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
         // Добавляем сообщения в контекст.
         // Они будут сохранены вместе с основными изменениями в рамках одной транзакции
         dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
+    }
+
+    // todo сделать отдельный TopicResolver
+    private static string ResolveTopic(IDomainEvent domainEvent)
+    {
+        return domainEvent switch
+        {
+            UserCreatedDomainEvent => "users-topic",
+
+            //OrderCreatedDomainEvent => "orders-topic",
+
+            //ProductCreatedDomainEvent => "products-topic",
+
+            _ => throw new InvalidOperationException(
+                $"Topic mapping not found for {domainEvent.GetType().Name}")
+        };
     }
 }

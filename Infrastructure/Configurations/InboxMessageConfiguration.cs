@@ -8,6 +8,8 @@ public class InboxMessageConfiguration : IEntityTypeConfiguration<InboxMessage>
 {
     public void Configure(EntityTypeBuilder<InboxMessage> builder)
     {
+        builder.ToTable("inbox_messages", "integration");
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Topic)

@@ -24,6 +24,7 @@ public class CaDemoDbContext(DbContextOptions<CaDemoDbContext> options, IMediato
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     public DbSet<OutboxMessage>  OutboxMessages => Set<OutboxMessage>();
+    public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

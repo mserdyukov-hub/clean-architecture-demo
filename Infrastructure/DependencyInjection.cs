@@ -131,6 +131,9 @@ public static class DependencyInjection
         services.AddSingleton<IKafkaProducer,
             KafkaProducer>();
 
+        services.AddHostedService<KafkaConsumerService>();
+        // services.AddHostedService<KafkaConsumerBService>();
+
         return services;
     }
 }

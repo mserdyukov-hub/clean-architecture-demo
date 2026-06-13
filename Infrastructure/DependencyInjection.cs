@@ -1,9 +1,12 @@
 using System.Text;
 using Application.Common.Interfaces;
+using Application.Common.Messaging;
 using Domain.Repositories;
 using Infrastructure.Authentications;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Cache;
 using Infrastructure.Data;
+using Infrastructure.Messaging.Kafka;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Security;
@@ -34,20 +37,36 @@ public static class DependencyInjection
         // PasswordHasher
         services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
-        // DbContext
-        services.AddDbContext<CaDemoDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        // Регистрируем DbContext и подключаем Outbox Interceptor.
+        //
+        // При вызове SaveChanges() Interceptor автоматически:
+        // 1. Находит Domain Events внутри агрегатов.
+        // 2. Преобразует их в OutboxMessage.
+        // 3. Добавляет записи в таблицу integration.outbox_messages.
+        //
+        // Благодаря этому изменения агрегатов и OutboxMessage сохраняются в рамках одной транзакции БД
+        services.AddDbContext<CaDemoDbContext>((serviceProvider, options) =>
+        {
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
 
-        services.AddScoped<ICaDemoDbContext>(
-            provider => provider.GetRequiredService<CaDemoDbContext>());
+            options.AddInterceptors(
+                serviceProvider.GetRequiredService<ConvertDomainEventsToOutboxMessagesInterceptor>());
+        });
+
+        services.AddScoped<ICaDemoDbContext>(provider => provider.GetRequiredService<CaDemoDbContext>());
 
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Repositories
+        // Repositories Identity
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+
+        // Repositories Shop
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         // JWT Authentication
         var jwtSettings = new JwtSettings();
@@ -118,7 +137,25 @@ public static class DependencyInjection
                 redisOptions.ConnectionString;
         });
 
+        // Redis сервис
         services.AddScoped<ICacheService, RedisCacheService>();
+
+        // Interceptor для реализации Outbox Pattern
+        // Перед SaveChanges извлекает Domain Events из агрегатов и сохраняет их в таблицу outbox_messages
+        services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
+
+        services.AddHostedService<OutboxProcessor>();
+
+
+        // Kafka
+        services.Configure<KafkaOptions>(
+            configuration.GetSection(
+                KafkaOptions.SectionName));
+
+        services.AddSingleton<IKafkaProducer,
+            KafkaProducer>();
+
+        services.AddHostedService<KafkaConsumerService>();
 
         return services;
     }

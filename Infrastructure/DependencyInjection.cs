@@ -1,5 +1,6 @@
 using System.Text;
 using Application.Common.Interfaces;
+using Application.Common.Messaging;
 using Domain.Repositories;
 using Infrastructure.Authentications;
 using Infrastructure.BackgroundServices;
@@ -143,6 +144,18 @@ public static class DependencyInjection
         services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
 
         services.AddHostedService<OutboxProcessor>();
+
+
+        // Kafka
+        services.Configure<KafkaOptions>(
+            configuration.GetSection(
+                KafkaOptions.SectionName));
+
+        services.AddSingleton<IKafkaProducer,
+            KafkaProducer>();
+
+        services.AddHostedService<KafkaConsumerService>();
+        // services.AddHostedService<KafkaConsumerBService>();
 
         return services;
     }

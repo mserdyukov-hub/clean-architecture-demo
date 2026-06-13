@@ -6,6 +6,7 @@ using Infrastructure.Authentications;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Cache;
 using Infrastructure.Data;
+using Infrastructure.Messaging.Kafka;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Security;

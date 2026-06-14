@@ -8,10 +8,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.BackgroundServices;
 
-public sealed class OutboxProcessor(
+/// <summary>
+/// Публикует Outbox в Kafka
+/// </summary>
+/// <param name="scopeFactory"></param>
+/// <param name="kafkaProducer"></param>
+/// <param name="logger"></param>
+public sealed class OutboxPublisher(
     IServiceScopeFactory scopeFactory,
     IKafkaProducer kafkaProducer,
-    ILogger<OutboxProcessor> logger)
+    ILogger<OutboxPublisher> logger)
     : BackgroundService
 {
     private const int MaxRetryCount = 5;

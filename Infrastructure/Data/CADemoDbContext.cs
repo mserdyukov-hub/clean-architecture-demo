@@ -35,41 +35,6 @@ public class CaDemoDbContext(DbContextOptions<CaDemoDbContext> options, IMediato
     {
         var result = await base.SaveChangesAsync(cancellationToken);
 
-       // await PublishDomainEventsAsync(cancellationToken);
-
         return result;
     }
-
-    /// <summary>
-    /// Находит все доменные события у агрегатов и публикует их через MediatR
-    /// </summary>
-    // private async Task PublishDomainEventsAsync(
-    //     CancellationToken cancellationToken)
-    // {
-    //     // Получаем все агрегаты, у которых есть хотя бы одно доменное событие
-    //     var aggregates = ChangeTracker
-    //         .Entries<AggregateRoot<Guid>>()
-    //         .Select(x => x.Entity)
-    //         .Where(x => x.DomainEvents.Count != 0)
-    //         .ToList();
-    //
-    //     // Собираем все события из всех агрегатов в один список
-    //     var domainEvents = aggregates
-    //         .SelectMany(x => x.DomainEvents)
-    //         .ToList();
-    //
-    //     // Публикуем каждое событие через MediatR
-    //     foreach (var domainEvent in domainEvents)
-    //     {
-    //         await mediator.Publish(
-    //             domainEvent,
-    //             cancellationToken);
-    //     }
-    //
-    //     // Очищаем события внутри агрегатов
-    //     foreach (var aggregate in aggregates)
-    //     {
-    //         aggregate.ClearDomainEvents();
-    //     }
-    // }
 }

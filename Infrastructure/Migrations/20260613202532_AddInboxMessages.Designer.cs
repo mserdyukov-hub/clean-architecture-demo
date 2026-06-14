@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CaDemoDbContext))]
-    partial class CaDemoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613202532_AddInboxMessages")]
+    partial class AddInboxMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,37 +325,31 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Error")
-                        .HasColumnType("text")
-                        .HasColumnName("error");
+                        .HasColumnType("text");
 
                     b.Property<long>("Offset")
-                        .HasColumnType("bigint")
-                        .HasColumnName("offset");
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Partition")
-                        .HasColumnType("integer")
-                        .HasColumnName("partition");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("ProcessedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("processed_on_utc");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ReceivedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("received_on_utc");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Topic")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("topic");
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Topic", "Partition", "Offset")
                         .IsUnique();
 
-                    b.ToTable("inbox_messages", "integration");
+                    b.ToTable("InboxMessage");
                 });
 
             modelBuilder.Entity("Infrastructure.Persistence.OutboxMessage", b =>

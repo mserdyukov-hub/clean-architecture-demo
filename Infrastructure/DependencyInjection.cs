@@ -144,7 +144,7 @@ public static class DependencyInjection
         // Перед SaveChanges извлекает Domain Events из агрегатов и сохраняет их в таблицу outbox_messages
         services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
 
-        services.AddHostedService<OutboxProcessor>();
+        services.AddHostedService<OutboxPublisher>();
 
 
         // Kafka
@@ -155,7 +155,7 @@ public static class DependencyInjection
         services.AddSingleton<IKafkaProducer,
             KafkaProducer>();
 
-        services.AddHostedService<KafkaConsumerService>();
+        services.AddHostedService<KafkaConsumer>();
 
         return services;
     }

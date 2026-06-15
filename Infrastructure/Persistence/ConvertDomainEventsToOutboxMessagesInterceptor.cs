@@ -56,7 +56,8 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
         var outboxMessages = domainEvents
             .Select(domainEvent => OutboxMessage.Create(
                 occurredOnUtc: DateTime.UtcNow,
-                ResolveTopic(domainEvent),
+
+                topic: ResolveTopic(domainEvent),
 
                 // Сохраняем полный тип события,чтобы позднее можно было восстановить объект
                 type: domainEvent.GetType().FullName!,

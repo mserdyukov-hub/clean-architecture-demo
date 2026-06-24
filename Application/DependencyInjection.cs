@@ -1,5 +1,9 @@
 using System.Reflection;
 using Application.Common.Behaviors;
+using Application.Common.Interfaces;
+using Application.Common.Messaging;
+using Application.Common.Messaging.Mappers;
+using Domain.Aggregates.Identity;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +35,11 @@ public static class DependencyInjection
 
         // CacheBehavior (пайплайн кеширования)
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CacheBehavior<,>));
+
+        services.AddScoped<IIntegrationEventMapper<UserCreatedDomainEvent>, UserCreatedIntegrationEventMapper>();
+
+        services.AddScoped<IIntegrationEventFactory, IntegrationEventFactory>();
+
         return services;
     }
 }

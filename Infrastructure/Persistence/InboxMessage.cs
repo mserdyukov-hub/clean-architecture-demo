@@ -5,32 +5,36 @@ namespace Infrastructure.Persistence;
 public sealed class InboxMessage : Entity<Guid>
 {
     /// <summary>
-    /// Kafka topic
+    /// Глобальный идентификатор интеграционного события.
+    /// Приходит из IntegrationEventEnvelope.
     /// </summary>
-    public string Topic { get; private set; } = null!;
+    public Guid EventId { get; private set; }
 
     /// <summary>
-    /// Kafka partition
+    /// Имя Consumer-а
+    /// Например:
+    /// EmailConsumer
+    /// BonusConsumer
     /// </summary>
-    public int Partition { get; private set; }
+    public string ConsumerName { get; private set; } = null!;
 
     /// <summary>
-    /// Kafka offset (уникальный идентификатор сообщения в рамках partition)
-    /// </summary>
-    public long Offset { get; private set; }
-
-    /// <summary>
-    /// Время получения сообщения
+    /// Время получения события
     /// </summary>
     public DateTime ReceivedOnUtc { get; private set; }
 
     /// <summary>
-    /// Время успешной обработки
+    /// Время успешного завершения обработки
     /// </summary>
     public DateTime? ProcessedOnUtc { get; private set; }
 
     /// <summary>
-    /// Ошибка последней обработки
+    /// Текущий статус обработки
+    /// </summary>
+    public InboxMessageStatus Status { get; private set; }
+
+    /// <summary>
+    /// Последняя ошибка обработки
     /// </summary>
     public string? Error { get; private set; }
 
@@ -38,29 +42,43 @@ public sealed class InboxMessage : Entity<Guid>
     {
     }
 
+    /// <summary>
+    /// Создаёт запись о начале обработки события
+    /// </summary>
     public static InboxMessage Create(
-        string topic,
-        int partition,
-        long offset)
+        Guid eventId,
+        string consumerName)
     {
         return new InboxMessage
         {
             Id = Guid.NewGuid(),
-            Topic = topic,
-            Partition = partition,
-            Offset = offset,
-            ReceivedOnUtc = DateTime.UtcNow
+
+            EventId = eventId,
+
+            ConsumerName = consumerName,
+
+            ReceivedOnUtc = DateTime.UtcNow,
+
+            Status = InboxMessageStatus.Processing
         };
     }
 
-    public void MarkProcessed()
+    /// <summary>
+    /// Помечает событие как успешно обработанное
+    /// </summary>
+    public void MarkCompleted()
     {
+        Status = InboxMessageStatus.Completed;
         ProcessedOnUtc = DateTime.UtcNow;
         Error = null;
     }
 
+    /// <summary>
+    /// Помечает событие как завершившееся ошибкой
+    /// </summary>
     public void MarkFailed(string message)
     {
+        Status = InboxMessageStatus.Failed;
         Error = message;
     }
 }

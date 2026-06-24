@@ -1,7 +1,7 @@
 using Contract.Common;
 using Domain.Common;
 
-namespace Application.Common.Interfaces;
+namespace Application.Common.Messaging.Mappers;
 
 /// <summary>
 /// Преобразует конкретное доменное событие в конкретное интеграционное событие.

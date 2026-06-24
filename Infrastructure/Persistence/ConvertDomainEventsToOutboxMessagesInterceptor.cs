@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Application.Common.Messaging;
+using Application.Common.Interfaces;
 using Domain.Aggregates.Identity;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
@@ -54,15 +54,11 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
                 }
             ).ToList();
 
-        // Получаем mapper
-        var mapper = dbContext
-            .GetService<IIntegrationEventMapper>();
+        // Получаем фабрику интеграционных событий
+        var factory = dbContext.GetService<IIntegrationEventFactory>();
 
-        // Конвертируем Domain → Integration
-        var integrationEvents = domainEvents
-            .Select(domainEvent => mapper.Map(domainEvent))
-            .Where(x => x != null)
-            .ToList();
+        // Domain → Integration
+        var integrationEvents = factory.Create(domainEvents);
 
         // Преобразуем каждое доменное событие в отдельную запись OutboxMessage
         var outboxMessages = integrationEvents

@@ -15,6 +15,11 @@ public sealed class OutboxMessage : Entity<Guid>
     public Guid EventId { get; private set; }
 
     /// <summary>
+    /// Тип ивента
+    /// </summary>
+    public string EventType { get; private set; } = null!;
+
+    /// <summary>
     /// Время, когда событие произошло в домене
     /// </summary>
     public DateTime OccurredOnUtc { get; private set; }
@@ -23,11 +28,6 @@ public sealed class OutboxMessage : Entity<Guid>
     /// Topic для kafka
     /// </summary>
     public string Topic { get; private set; } = null!;
-
-    /// <summary>
-    /// Тип ивента
-    /// </summary>
-    public string EventType { get; private set; } = null!;
 
     /// <summary>
     /// JSON сериализованного события

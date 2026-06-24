@@ -1,8 +1,10 @@
 using System.Text.Json;
+using Application.Common.Messaging;
 using Domain.Aggregates.Identity;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Infrastructure.Persistence;
 
@@ -52,18 +54,28 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
                 }
             ).ToList();
 
-        // Преобразуем каждое доменное событие в отдельную запись OutboxMessage
-        var outboxMessages = domainEvents
-            .Select(domainEvent => OutboxMessage.Create(
-                occurredOnUtc: DateTime.UtcNow,
+        // Получаем mapper
+        var mapper = dbContext
+            .GetService<IIntegrationEventMapper>();
 
-                topic: ResolveTopic(domainEvent),
+        // Конвертируем Domain → Integration
+        var integrationEvents = domainEvents
+            .Select(domainEvent => mapper.Map(domainEvent))
+            .Where(x => x != null)
+            .ToList();
+
+        // Преобразуем каждое доменное событие в отдельную запись OutboxMessage
+        var outboxMessages = integrationEvents
+            .Select(integrationEvent => OutboxMessage.Create(
+                evenId: integrationEvent.EventId,
+                occurredOnUtc: integrationEvent.OccurredOnUtc,
+                topic: ResolveTopic(integrationEvent),
 
                 // Сохраняем полный тип события,чтобы позднее можно было восстановить объект
-                type: domainEvent.GetType().FullName!,
+                eventType: integrationEvent.GetType().FullName!,
 
                 // Сериализуем событие в JSON
-                content: JsonSerializer.Serialize(domainEvent)
+                payload: JsonSerializer.Serialize(integrationEvent)
             ))
             .ToList();
 
@@ -73,9 +85,9 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
     }
 
     // todo сделать отдельный TopicResolver
-    private static string ResolveTopic(IDomainEvent domainEvent)
+    private static string ResolveTopic(object integrationEvent)
     {
-        return domainEvent switch
+        return integrationEvent switch
         {
             UserCreatedDomainEvent => "users-topic",
 
@@ -84,7 +96,7 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor : SaveChanges
             //ProductCreatedDomainEvent => "products-topic",
 
             _ => throw new InvalidOperationException(
-                $"Topic mapping not found for {domainEvent.GetType().Name}")
+                $"Topic mapping not found for {integrationEvent.GetType().Name}")
         };
     }
 }

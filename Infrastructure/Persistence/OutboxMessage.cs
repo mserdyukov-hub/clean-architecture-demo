@@ -9,6 +9,12 @@ public sealed class OutboxMessage : Entity<Guid>
     }
 
     /// <summary>
+    /// Глобальный идентификатор интеграционного события.
+    /// Используется для трассировки и идемпотентности.
+    /// </summary>
+    public Guid EventId { get; private set; }
+
+    /// <summary>
     /// Время, когда событие произошло в домене
     /// </summary>
     public DateTime OccurredOnUtc { get; private set; }
@@ -21,12 +27,12 @@ public sealed class OutboxMessage : Entity<Guid>
     /// <summary>
     /// Тип ивента
     /// </summary>
-    public string Type { get; private set; } = null!;
+    public string EventType { get; private set; } = null!;
 
     /// <summary>
     /// JSON сериализованного события
     /// </summary>
-    public string Content { get; private set; } = null!;
+    public string Payload { get; private set; } = null!;
 
     /// <summary>
     /// Время успешно отработанного события ( Null - событие не отработано )
@@ -43,8 +49,16 @@ public sealed class OutboxMessage : Entity<Guid>
     /// </summary>
     public int RetryCount { get; private set; }
 
-    public static OutboxMessage Create(DateTime occurredOnUtc, string topic, string type, string content)
-        => new() { Id = Guid.NewGuid(), OccurredOnUtc = occurredOnUtc, Topic = topic, Type = type, Content = content };
+    public static OutboxMessage Create(Guid evenId, DateTime occurredOnUtc, string topic, string eventType, string payload)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            EventId = evenId,
+            OccurredOnUtc = occurredOnUtc,
+            Topic = topic,
+            EventType = eventType,
+            Payload = payload
+        };
 
     public void MarkAsProcessed()
     {

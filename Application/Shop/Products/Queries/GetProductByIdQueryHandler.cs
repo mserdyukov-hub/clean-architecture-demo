@@ -1,6 +1,7 @@
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Common.Messaging;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Shop.Products.Queries;

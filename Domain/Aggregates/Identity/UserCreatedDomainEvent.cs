@@ -15,4 +15,7 @@ namespace Domain.Aggregates.Identity;
 /// <param name="Email">
 /// Email созданного пользователя
 /// </param>
-public record UserCreatedDomainEvent(Guid Id, string Email) : IDomainEvent;
+/// <param name="OccurredOnUtc">
+/// Время создания ивента
+/// </param>
+public record UserCreatedDomainEvent(Guid Id, string Email, DateTime OccurredOnUtc) : IDomainEvent;

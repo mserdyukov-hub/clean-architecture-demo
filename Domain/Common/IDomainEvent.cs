@@ -8,5 +8,5 @@ namespace Domain.Common;
 /// </summary>
 public interface IDomainEvent : INotification
 {
-
+    DateTime OccurredOnUtc { get; }
 }

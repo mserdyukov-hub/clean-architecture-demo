@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Application.Common.Messaging;
 using Confluent.Kafka;
+using Contract.Common;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Messaging.Kafka;
@@ -18,10 +20,14 @@ public sealed class KafkaProducer : IKafkaProducer
         _producer = new ProducerBuilder<string, string>(config).Build();
     }
 
-    public async Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default)
-        => await _producer.ProduceAsync(
+    public async Task ProduceAsync(string topic, IntegrationEventEnvelope envelope,
+        CancellationToken cancellationToken = default)
+    {
+        var json = JsonSerializer.Serialize(envelope);
+        await _producer.ProduceAsync(
             topic,
-            new Message<string, string> { Key = message, Value = message },
+            new Message<string, string> { Key = envelope.EventId.ToString(), Value = json },
             cancellationToken
-            );
+        );
+    }
 }

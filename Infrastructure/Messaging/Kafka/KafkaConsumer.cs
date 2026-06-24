@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Confluent.Kafka;
+using Contract.Common;
 using Infrastructure.Data;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,8 @@ public class KafkaConsumer(
     : BackgroundService
 {
     private readonly KafkaOptions _options = options.Value;
+
+    private const string ConsumerName = "UsersConsumer";
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -63,43 +67,73 @@ public class KafkaConsumer(
 
                 var dbContext = scope.ServiceProvider.GetRequiredService<CaDemoDbContext>();
 
-                var topic = result.Topic;
-                var partition = result.Partition.Value;
-                var offset = result.Offset.Value;
+                IntegrationEventEnvelope? envelope;
 
-                var alreadyProcessed = await dbContext.InboxMessages.AnyAsync(x =>
-                        x.Topic == topic && x.Partition == partition && x.Offset == offset,
-                    cancellationToken);
-
-                if (alreadyProcessed)
+                try
                 {
-                    LogMessage("Duplicate message skipped", topic, partition, offset);
+                    envelope = JsonSerializer.Deserialize<IntegrationEventEnvelope>(result.Message.Value);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to deserialize IntegrationEventEnvelope");
 
                     consumer.Commit(result);
 
                     continue;
                 }
 
+                if (envelope is null)
+                {
+                    logger.LogWarning("Received empty IntegrationEventEnvelope");
+
+                    consumer.Commit(result);
+
+                    continue;
+                }
+
+                // IDEMPOTENCY CHECK
+                var alreadyProcessed = await dbContext.InboxMessages.AnyAsync(x =>
+                        x.EventId == envelope.EventId && x.ConsumerName == ConsumerName,
+                    cancellationToken);
+
+                if (alreadyProcessed)
+                {
+                    LogMessage("Duplicate event skipped", envelope.EventId, ConsumerName);
+
+                    consumer.Commit(result);
+
+                    continue;
+                }
+
+                var inboxMessage = InboxMessage.Create(envelope.EventId, ConsumerName);
+
+                dbContext.InboxMessages.Add(inboxMessage);
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+
                 try
                 {
-                    LogMessageReceived(result);
+                    LogMessageReceived(envelope);
 
-                    await ProcessMessageAsync(result, cancellationToken);
+                    await ProcessMessageAsync(envelope, cancellationToken);
 
-                    var inboxMessage = InboxMessage.Create(topic, partition, offset);
-
-                    inboxMessage.MarkProcessed();
-
-                    dbContext.InboxMessages.Add(
-                        inboxMessage);
+                    inboxMessage.MarkCompleted();
 
                     await dbContext.SaveChangesAsync(cancellationToken);
 
-                    LogMessage("Message processed", topic, partition, offset);
+                    consumer.Commit(result);
+
+                    LogMessage("Message processed", envelope.EventId, ConsumerName);
                 }
                 catch (Exception ex)
                 {
-                    LogMessage("Failed processing message", topic, partition, offset);
+                    LogMessage("Failed processing message", envelope.EventId, ConsumerName);
+
+                    inboxMessage.MarkFailed(ex.Message);
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
+
+                    consumer.Commit(result);
                 }
             }
         }
@@ -121,52 +155,40 @@ public class KafkaConsumer(
         }
     }
 
-    private static async Task ProcessMessageAsync(
-        ConsumeResult<string, string> result,
+    private static async Task ProcessMessageAsync(IntegrationEventEnvelope envelope,
         CancellationToken cancellationToken)
     {
         await Task.Delay(
             1000,
             cancellationToken);
-
-        // Здесь будет настоящая бизнес-логика
     }
 
-    private void LogMessageReceived(
-        ConsumeResult<string, string> result)
+    private void LogMessageReceived(IntegrationEventEnvelope envelope)
     {
         logger.LogInformation(
             """
-            Message received
+            Event received
 
-            Topic: {Topic}
-            Partition: {Partition}
-            Offset: {Offset}
-            Value: {Value}
+            EventId: {EventId}
+            EventType: {EventType}
+            OccurredOnUtc: {OccurredOnUtc}
             """,
-            result.Topic,
-            result.Partition.Value,
-            result.Offset.Value,
-            result.Message.Value);
+            envelope.EventId,
+            envelope.EventType,
+            envelope.OccurredOnUtc);
     }
 
-    private void LogMessage(
-        string message,
-        string topic,
-        int partition,
-        long offset)
+    private void LogMessage(string message, Guid eventId, string consumer)
     {
         logger.LogInformation(
             """
             {message}
 
-            Topic: {Topic}
-            Partition: {Partition}
-            Offset: {Offset}
+            EventId: {eventId}
+            Consumer: {consumer}
             """,
             message,
-            topic,
-            partition,
-            offset);
+            eventId,
+            consumer);
     }
 }

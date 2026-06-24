@@ -17,6 +17,7 @@ public sealed class User : AggregateRoot<Guid>
     private User()
     {
     }
+
     private User(Guid id, string username, Email email, PasswordHash passwordHash)
     {
         Id = id;
@@ -26,6 +27,7 @@ public sealed class User : AggregateRoot<Guid>
         CreatedAt = DateTime.UtcNow;
         IsActive = true;
     }
+
     public string UserName { get; private set; }
     public Email Email { get; private set; }
     public string? FirstName { get; set; }
@@ -54,7 +56,8 @@ public sealed class User : AggregateRoot<Guid>
         user.AddDomainEvent(
             new UserCreatedDomainEvent(
                 user.Id,
-                user.Email));
+                user.Email,
+                DateTime.UtcNow));
 
         return user;
     }
@@ -119,7 +122,7 @@ public sealed class User : AggregateRoot<Guid>
 
     public void UpdateProfile(string username, string? firstName, string? lastName)
     {
-        if(string.IsNullOrEmpty(username))
+        if (string.IsNullOrEmpty(username))
             throw new DomainException("Username cannot be empty");
         UserName = username;
         FirstName = firstName;

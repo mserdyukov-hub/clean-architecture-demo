@@ -1,6 +1,8 @@
+using Contract.Common;
+
 namespace Application.Common.Messaging;
 
 public interface IKafkaProducer
 {
-    Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default);
+    Task ProduceAsync(string topic, IntegrationEventEnvelope envelope, CancellationToken cancellationToken = default);
 }

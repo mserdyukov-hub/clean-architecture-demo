@@ -1,4 +1,5 @@
 using Application.Common.Messaging;
+using Contract.Common;
 using Infrastructure.Data;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,13 @@ public sealed class OutboxPublisher(
                         {
                             await kafkaProducer.ProduceAsync(
                                 message.Topic,
-                                message.Content,
+                                new IntegrationEventEnvelope
+                                {
+                                    EventId = message.EventId,
+                                    EventType = message.EventType,
+                                    OccurredOnUtc = message.OccurredOnUtc,
+                                    Payload = message.Payload
+                                },
                                 stoppingToken);
 
                             logger.LogInformation(
